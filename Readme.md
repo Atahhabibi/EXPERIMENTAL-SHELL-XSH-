@@ -202,5 +202,14 @@ clean:
 	rm -f *.o dsh
 
 
+#HOW TO COMPILE
+
+-Navigate to the ~/a2 directory.
+-Run make to compile the program:
+
+```bash
+
+cd ~/a2
+make
 
 
