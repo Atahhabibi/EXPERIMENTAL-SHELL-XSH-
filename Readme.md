@@ -181,7 +181,7 @@ void execute_command(char *input) {
 
 
 //MAKE FILE
-```makefile
+```Makefile
 
 CC=gcc
 CFLAGS=-Wall -g
