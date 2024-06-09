@@ -181,6 +181,7 @@ void execute_command(char *input) {
 
 
 //MAKE FILE
+```makefile
 
 CC=gcc
 CFLAGS=-Wall -g
@@ -198,7 +199,6 @@ shell.o: shell.c shell.h
 
 clean:
 	rm -f *.o dsh
-
 
 
 
