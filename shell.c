@@ -6,11 +6,13 @@
 #include <sys/wait.h>
 #include <fcntl.h>
 
+// Function to print the shell prompt
 void print_prompt() {
-    printf("cssc0000%% ");
+    printf("cssc0000%% ");  // Replace cssc0000 with your class account username
     fflush(stdout);
 }
 
+// Function to read the user input
 char* read_input() {
     char *input = NULL;
     size_t len = 0;
@@ -19,8 +21,9 @@ char* read_input() {
     return input;
 }
 
+// Function to execute the command entered by the user
 void execute_command(char *input) {
-    // Parse command
+    // Parse the command into arguments
     char *args[100];
     char *token = strtok(input, " ");
     int i = 0;
@@ -30,7 +33,7 @@ void execute_command(char *input) {
     }
     args[i] = NULL;
 
-    // Check for pipe
+    // Check for pipe in the command
     int pipe_index = -1;
     for (int j = 0; j < i; j++) {
         if (strcmp(args[j], "|") == 0) {
@@ -40,7 +43,7 @@ void execute_command(char *input) {
     }
 
     if (pipe_index != -1) {
-        // Handle pipe
+        // Handle piped commands
         args[pipe_index] = NULL;
         int fd[2];
         pipe(fd);
@@ -73,7 +76,7 @@ void execute_command(char *input) {
         waitpid(pid1, NULL, 0);
         waitpid(pid2, NULL, 0);
     } else {
-        // No pipe, single command
+        // Handle single command
         pid_t pid = fork();
         if (pid == 0) {
             // Child process
