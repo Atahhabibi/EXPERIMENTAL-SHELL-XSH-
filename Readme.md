@@ -26,21 +26,6 @@ Contributors:
 - Name: MATTEW (username)
 
 
-# Experimental Shell (XSH)
-
-## Developed by:
-- **Name:** Atah Habibi
-- **Username:** cssc0000
-
-## Description:
-This is an experimental shell implementation named XSH. It supports launching new programs, handling pipes, and has a built-in `exit` function.
-
-## Features:
-- Print prompt and wait for user input.
-- Execute commands with an optional single argument.
-- Support for piping between commands.
-- Built-in `exit` function to gracefully terminate the shell.
-
 ## Directory Structure:
 
 ~/a2
@@ -206,11 +191,14 @@ clean:
 
 -Navigate to the ~/a2 directory.
 -Run make to compile the program:
+-Execute ./dsh to start the shell:
 
 ```bash
 
 cd ~/a2
 make
+./dsh
+
 
 ```
 
