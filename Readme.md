@@ -212,4 +212,8 @@ clean:
 cd ~/a2
 make
 
+```
+
+![Screenshot 2024-06-09 at 4 46 31 AM](https://github.com/Atahhabibi/EXPERIMENTAL-SHELL-XSH-/assets/106895247/0ea6f719-a00f-4dab-a22e-74ecdd060051)
+
 
