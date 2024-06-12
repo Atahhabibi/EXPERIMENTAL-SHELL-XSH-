@@ -41,7 +41,7 @@
     - Exit the shell: `cssc0000% exit`
 
 ## Novel/Significant Design Decisions:
-- Implemented basic command execution and handling of piped commands using `fork` and `execvp`.
+- Implemented basic command execution and handling of piped commands.
 - Included detailed error handling for failed command executions.
 - Simplified the design to focus on core functionality as required by the assignment.
 
@@ -49,8 +49,8 @@
 - None beyond the requirements specified in the assignment.
 
 ## Known Deficiencies or Bugs:
-- The shell does not handle background processes or signal handling.
-- Limited to single arguments and basic piping without complex parsing.
+- The shell does handle background processes or signal handling.
+- Arguments and basic piping with complex parsing.
 
 ## Lessons Learned:
 - Gained a deeper understanding of process management and inter-process communication in Unix-like systems.
