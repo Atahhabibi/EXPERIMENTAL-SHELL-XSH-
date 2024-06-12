@@ -1,207 +1,58 @@
-Experimental Shell (XSH)
-========================
+# Experimental Shell (XSH)
 
-Developed by:
-- Name: ATAH HABIBI (username)
+## Developed by:
+- **Name:** Atah Habibi
+- **Username:** cssc4466
+- **Name:** Matthew Press
+- **Username:** cssc4443
 
-Description:
-This is an experimental shell implementation named XSH. It supports launching new programs, handling pipes, and has a built-in exit function.
+## Class Information:
+- **Class:** CS 570, Summer 2016
+- **Assignment:** Assignment #2, Experimental Shell (XSH)
 
-Features:
-- Print prompt and wait for user input.
-- Execute commands with optional single argument.
-- Support for piping between commands.
-- Built-in exit function to gracefully terminate the shell.
+## Filename:
+- **Filename:** README.md
 
-How to Compile:
+## File Manifest:
+- `main.c` - Contains the main function to run the shell loop.
+- `shell.c` - Contains the implementation of the shell functions.
+- `shell.h` - Header file containing the declarations of the shell functions.
+- `Makefile` - File to compile the program.
+- `README.md` - This file, providing a basic description of the project and instructions.
+
+## Compile Instructions:
 1. Navigate to the `~/a2` directory.
-2. Run `make` to compile the program.
+2. Run `make` to compile the program:
+    ```bash
+    cd ~/a2
+    make
+    ```
 
-How to Run:
-1. Execute `./dsh` to start the shell.
-2. Enter commands in the format specified in the assignment.
-3. Type `exit` to terminate the shell.
+## Operating Instructions:
+1. Execute `./dsh` to start the shell:
+    ```bash
+    ./dsh
+    ```
+2. Enter commands in the format specified below:
+    - Single command: `cssc0000% ls -la`
+    - Command with arguments: `cssc0000% /usr/bin/echo printme`
+    - Command with pipes: `cssc0000% ls -la | sort -fi`
+    - Command with multiple pipes: `cssc0000% ls -la | sort -fi | grep .bashrc`
+    - Exit the shell: `cssc0000% exit`
 
-Contributors:
-- Name: MATTEW (username)
+## Novel/Significant Design Decisions:
+- Implemented basic command execution and handling of piped commands using `fork` and `execvp`.
+- Included detailed error handling for failed command executions.
+- Simplified the design to focus on core functionality as required by the assignment.
 
+## Extra Features/Algorithms/Functionality:
+- None beyond the requirements specified in the assignment.
 
-## Directory Structure:
+## Known Deficiencies or Bugs:
+- The shell does not handle background processes or signal handling.
+- Limited to single arguments and basic piping without complex parsing.
 
-~/a2
-|-- main.c
-|-- shell.c
-|-- shell.h
-|-- Makefile
-|-- README.md
-
-
-## Code:
-
-### shell.h
-```c
-#ifndef SHELL_H
-#define SHELL_H
-
-void print_prompt();
-char* read_input();
-void execute_command(char *input);
-
-#endif // SHELL_H
-
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "shell.h"
-
-// MAIN.C
-
-int main() {
-    while (1) {
-        print_prompt();
-        char *input = read_input();
-        if (strcmp(input, "exit") == 0) {
-            free(input);
-            break;
-        }
-        execute_command(input);
-        free(input);
-    }
-    return 0;
-}
-
-
-//SHELL.C
-
-
-#include "shell.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <sys/wait.h>
-#include <fcntl.h>
-
-void print_prompt() {
-    printf("cssc0000%% ");  // Replace cssc0000 with your class account username
-    fflush(stdout);
-}
-
-char* read_input() {
-    char *input = NULL;
-    size_t len = 0;
-    getline(&input, &len, stdin);
-    input[strcspn(input, "\n")] = 0; // Remove the newline character
-    return input;
-}
-
-void execute_command(char *input) {
-    // Parse command
-    char *args[100];
-    char *token = strtok(input, " ");
-    int i = 0;
-    while (token != NULL) {
-        args[i++] = token;
-        token = strtok(NULL, " ");
-    }
-    args[i] = NULL;
-
-    // Check for pipe
-    int pipe_index = -1;
-    for (int j = 0; j < i; j++) {
-        if (strcmp(args[j], "|") == 0) {
-            pipe_index = j;
-            break;
-        }
-    }
-
-    if (pipe_index != -1) {
-        // Handle pipe
-        args[pipe_index] = NULL;
-        int fd[2];
-        pipe(fd);
-
-        pid_t pid1 = fork();
-        if (pid1 == 0) {
-            // Child process 1
-            close(fd[0]);
-            dup2(fd[1], STDOUT_FILENO);
-            close(fd[1]);
-            execvp(args[0], args);
-            perror("execvp failed");
-            exit(EXIT_FAILURE);
-        }
-
-        pid_t pid2 = fork();
-        if (pid2 == 0) {
-            // Child process 2
-            close(fd[1]);
-            dup2(fd[0], STDIN_FILENO);
-            close(fd[0]);
-            execvp(args[pipe_index + 1], &args[pipe_index + 1]);
-            perror("execvp failed");
-            exit(EXIT_FAILURE);
-        }
-
-        // Parent process
-        close(fd[0]);
-        close(fd[1]);
-        waitpid(pid1, NULL, 0);
-        waitpid(pid2, NULL, 0);
-    } else {
-        // No pipe, single command
-        pid_t pid = fork();
-        if (pid == 0) {
-            // Child process
-            execvp(args[0], args);
-            perror("execvp failed");
-            exit(EXIT_FAILURE);
-        } else {
-            // Parent process
-            waitpid(pid, NULL, 0);
-        }
-    }
-}
-
-
-//MAKE FILE
-```makefile
-# MAKEFILE
-
-CC=gcc
-CFLAGS=-Wall -g
-
-all: dsh
-
-dsh: main.o shell.o
-	$(CC) $(CFLAGS) -o dsh main.o shell.o
-
-main.o: main.c shell.h
-	$(CC) $(CFLAGS) -c main.c
-
-shell.o: shell.c shell.h
-	$(CC) $(CFLAGS) -c shell.c
-
-clean:
-	rm -f *.o dsh
-
-
-#HOW TO COMPILE
-
--Navigate to the ~/a2 directory.
--Run make to compile the program:
--Execute ./dsh to start the shell:
-
-```bash
-
-cd ~/a2
-make
-./dsh
-
-
-```
-
-![Screenshot 2024-06-09 at 4 46 31 AM](https://github.com/Atahhabibi/EXPERIMENTAL-SHELL-XSH-/assets/106895247/0ea6f719-a00f-4dab-a22e-74ecdd060051)
-
-
+## Lessons Learned:
+- Gained a deeper understanding of process management and inter-process communication in Unix-like systems.
+- Improved skills in handling user input and command parsing.
+- Learned the importance of detailed error handling and user feedback in shell implementations.
