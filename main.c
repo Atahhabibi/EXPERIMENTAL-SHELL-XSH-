@@ -3,6 +3,13 @@
 #include <string.h>
 #include "shell.h"
 
+
+// ## Developed by:
+//- **Name:** Atah Habibi
+//- **Username:** cssc4466
+//- **Name:** Matthew Press
+//- **Username:** cssc4443
+
 // Main function to run the shell loop
 int main() {
     while (1) {

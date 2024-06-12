@@ -1,3 +1,6 @@
+// Developed by: Atah Habibi (cssc4466), Matthew Press (cssc4443)
+
+
 #ifndef SHELL_H
 #define SHELL_H
 

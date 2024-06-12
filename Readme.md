@@ -37,7 +37,7 @@
     - Single command: `cssc0000% ls -la`
     - Command with arguments: `cssc0000% /usr/bin/echo printme`
     - Command with pipes: `cssc0000% ls -la | sort -fi`
-    - Command with multiple pipes: `cssc0000% ls -la | sort -fi | grep .bashrc`
+    - Command with multiple pipes: `cssc0000% ls -la | sort -fi | grep shell`
     - Exit the shell: `cssc0000% exit`
 
 ## Novel/Significant Design Decisions:

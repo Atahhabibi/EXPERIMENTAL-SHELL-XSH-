@@ -7,9 +7,16 @@
 #include <sys/wait.h>
 #include <fcntl.h>
 
+
+// ## Developed by:
+//- **Name:** Atah Habibi
+//- **Username:** cssc4466
+//- **Name:** Matthew Press
+//- **Username:** cssc4443
+
 // Function to print the shell prompt
 void print_prompt() {
-    printf("cssc0000%% ");  // Replace cssc0000 with your class account username
+    printf("cssc4443%% ");  // Replace cssc0000 with your class account username
     fflush(stdout);
 }
 
