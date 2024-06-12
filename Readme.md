@@ -7,7 +7,7 @@
 - **Username:** cssc4443
 
 ## Class Information:
-- **Class:** CS 570, Summer 2016
+- **Class:** CS 480, Summer 2024
 - **Assignment:** Assignment #2, Experimental Shell (XSH)
 
 ## Filename:
