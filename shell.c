@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include "shell.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,7 +9,7 @@
 
 // Function to print the shell prompt
 void print_prompt() {
-    printf("cssc4443%% ");  // Replace cssc0000 with your class account username
+    printf("cssc0000%% ");  // Replace cssc0000 with your class account username
     fflush(stdout);
 }
 
@@ -21,71 +22,84 @@ char* read_input() {
     return input;
 }
 
-// Function to execute the command entered by the user
+// Function to split input by pipe (|) and execute commands
 void execute_command(char *input) {
-    // Parse the command into arguments
-    char *args[100];
-    char *token = strtok(input, " ");
+    char *commands[100];
+    char *token = strtok(input, "|");
     int i = 0;
+
+    // Split input by pipe
     while (token != NULL) {
-        args[i++] = token;
-        token = strtok(NULL, " ");
+        commands[i++] = token;
+        token = strtok(NULL, "|");
     }
-    args[i] = NULL;
+    commands[i] = NULL;
 
-    // Check for pipe in the command
-    int pipe_index = -1;
-    for (int j = 0; j < i; j++) {
-        if (strcmp(args[j], "|") == 0) {
-            pipe_index = j;
-            break;
-        }
-    }
+    // Handle multiple pipes
+    int num_pipes = i - 1;
+    int pipefds[2 * num_pipes];
 
-    if (pipe_index != -1) {
-        // Handle piped commands
-        args[pipe_index] = NULL;
-        int fd[2];
-        pipe(fd);
-
-        pid_t pid1 = fork();
-        if (pid1 == 0) {
-            // Child process 1
-            close(fd[0]);
-            dup2(fd[1], STDOUT_FILENO);
-            close(fd[1]);
-            execvp(args[0], args);
-            perror("execvp failed");
+    for (int j = 0; j < num_pipes; j++) {
+        if (pipe(pipefds + j * 2) < 0) {
+            perror("pipe");
             exit(EXIT_FAILURE);
         }
+    }
 
-        pid_t pid2 = fork();
-        if (pid2 == 0) {
-            // Child process 2
-            close(fd[1]);
-            dup2(fd[0], STDIN_FILENO);
-            close(fd[0]);
-            execvp(args[pipe_index + 1], &args[pipe_index + 1]);
-            perror("execvp failed");
-            exit(EXIT_FAILURE);
-        }
+    int pid;
+    int command_index = 0;
 
-        // Parent process
-        close(fd[0]);
-        close(fd[1]);
-        waitpid(pid1, NULL, 0);
-        waitpid(pid2, NULL, 0);
-    } else {
-        // Handle single command
-        pid_t pid = fork();
+    while (commands[command_index] != NULL) {
+        pid = fork();
         if (pid == 0) {
-            // Child process
+            // Redirect stdin for all but the first command
+            if (command_index > 0) {
+                if (dup2(pipefds[(command_index - 1) * 2], 0) < 0) {
+                    perror("dup2");
+                    exit(EXIT_FAILURE);
+                }
+            }
+            // Redirect stdout for all but the last command
+            if (commands[command_index + 1] != NULL) {
+                if (dup2(pipefds[command_index * 2 + 1], 1) < 0) {
+                    perror("dup2");
+                    exit(EXIT_FAILURE);
+                }
+            }
+            // Close all pipe fds
+            for (int j = 0; j < 2 * num_pipes; j++) {
+                close(pipefds[j]);
+            }
+
+            // Parse command arguments
+            char *args[100];
+            char *arg_token = strtok(commands[command_index], " ");
+            int arg_index = 0;
+
+            while (arg_token != NULL) {
+                args[arg_index++] = arg_token;
+                arg_token = strtok(NULL, " ");
+            }
+            args[arg_index] = NULL;
+
+            // Execute the command
             execvp(args[0], args);
             perror("execvp failed");
             exit(EXIT_FAILURE);
-        } else {
-            // Parent process
-            waitpid(pid, NULL, 0);
+        } else if (pid < 0) {
+            perror("fork failed");
+            exit(EXIT_FAILURE);
         }
+        command_index++;
+    }
+
+    // Close all pipe fds in parent
+    for (int j = 0; j < 2 * num_pipes; j++) {
+        close(pipefds[j]);
+    }
+
+    // Wait for all child processes
+    for (int j = 0; j <= num_pipes; j++) {
+        wait(NULL);
     }
 }
